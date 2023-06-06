@@ -1,4 +1,3 @@
-# Консольная версия будущего бота
 import random
 
 
@@ -39,9 +38,11 @@ def letter_for_next_player(word, banned_letters):
 
 
 def generate_bot_answer(cities_base, answer_letter, used_cities):
+    if set(cities_base[answer_letter]) - set(used_cities) == set():
+        return 'bot_failed'
     answer = None
     while answer is None or answer in used_cities:
-        answer = ''.join(random.choices(cities_base[answer_letter]))
+        answer = random.choice(cities_base[answer_letter])
     return answer
 
 
@@ -59,7 +60,7 @@ def generate_not_ok_reaction(check_result, necessary_letter):
 def main():
     cities_list = read_cities_file('cities.txt') 
     cities_base = create_cities_base(cities_list)
-    banned_letters = set(['ё', 'ь', 'ы', 'ъ', 'й'])
+    banned_letters = set('ёйьыъ')
     used_cities = []
     necessary_letter = None
     user_input = None
@@ -71,20 +72,23 @@ def main():
             used_cities.append(user_input)
             answer_letter = letter_for_next_player(user_input, banned_letters)
             answer = generate_bot_answer(cities_base, answer_letter, used_cities)
+            if answer == 'bot_failed' or random.randint(0, 100) == 5:   # real or fake bot failure
+                print('Бот: Ничего не идет в голову. Вы меня обыграли!')
+                break
             used_cities.append(answer)
             necessary_letter = letter_for_next_player(answer, banned_letters) 
-            print(f'Бот: {answer.capitalize()} (Ваш город должен начинаться с буквы {necessary_letter.upper()})')
+            print(f'Бот: {answer.capitalize()} (Жду город на букву {necessary_letter.upper()})')
         else:
             print(generate_not_ok_reaction(check_result, necessary_letter))
 
 
 # Далее:
-# - Добавить принт по исчерпании ботом слов для ответа (мало ли)
 # - Оставить большие буквы в пробельных и дефисных городах (как в базе)
+# - Добавить юзер скор (и таблицу рекордов)
+# - Определиться с буквой 'ё'
 # - Перенести в Telegram
 # - Добавить возможность одновременной игры разными игроками
-# - Добавить юзер скор (и таблицу рекордов)
-# - Добавить города СНГ и прочих стран
+# - Добавить крупные города Европы, США, Азии, Австралии
 
 
 if __name__ == '__main__':
