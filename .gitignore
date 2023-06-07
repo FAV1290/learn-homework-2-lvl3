@@ -124,5 +124,4 @@ dmypy.json
 
 # Bot config and othed bot files
 settings.py
-cities_bot.py
 cities.txt

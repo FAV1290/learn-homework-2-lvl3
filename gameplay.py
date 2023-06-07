@@ -1,10 +1,10 @@
 import random
 
 
-def check_input(user_input, cities_base, used_cities, necessary_letter):
-    if user_input == 'выход':
+def check_input(user_input, cities_base, used_cities, necessary_letter, mode='console'):
+    if user_input == 'выход' and mode != 'bot':
         return 'exit'
-    elif user_input == 'подсказка':
+    elif user_input == 'подсказка' and mode != 'bot':
         return 'need hint'
     elif user_input in used_cities:
         return 'used city'
@@ -33,25 +33,25 @@ def generate_answer(cities_base, answer_letter, used_cities):
 
 def generate_not_ok_reaction(check_result, necessary_letter, cities_base, used_cities):
     if check_result == 'exit':
-        return 'Бот: Очень жаль! До свидания'
+        return 'Очень жаль! До свидания'
     elif check_result == 'unknown city':
-        return'Бот: Не знаю такого города! Попробуйте еще раз'
+        return'Не знаю такого города! Попробуйте еще раз'
     elif check_result == 'wrong letter':
-        return f'Бот: Город должен начинаться с буквы {necessary_letter.upper()}. Попробуйте еще раз'
+        return f'Город должен начинаться с буквы {necessary_letter.upper()}. Попробуйте еще раз'
     elif check_result == 'used city':
-        return 'Бот: Этот город уже был! Попробуйте еще раз'
+        return 'Этот город уже был! Попробуйте еще раз'
     elif check_result == 'need hint':
         if necessary_letter is None:
             necessary_letter = random.choice(tuple(cities_base.keys()))
         answer = generate_answer(cities_base, necessary_letter, used_cities)
         if answer == 'no_answer':
-            return f'Бот: Не могу придумать городов на эту букву. Возможно, стоит сдаться?'
+            return f'Не могу придумать городов на эту букву. Возможно, стоит сдаться?'
         else:
-            return f'Бот: Как насчет города под назанием {answer.title()}?'
+            return f'Как насчет города под назанием {answer.title()}?'
     
 
-def fake_bot_failure():
-    if random.randint(1, 25) == 5:
-        return True
+def fake_bot_failure(mode = 'user'):
+    if mode == 'developer':
+        return random.randint(1, 5) == 3
     else:
-        return False
+        return random.randint(1, 25) == 5
