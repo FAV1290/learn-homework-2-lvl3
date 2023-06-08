@@ -54,4 +54,4 @@ def fake_bot_failure(mode = 'user'):
     if mode == 'developer':
         return random.randint(1, 5) == 3
     else:
-        return random.randint(1, 25) == 5
+        return random.randint(1, 30) == 5
