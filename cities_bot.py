@@ -4,7 +4,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 
 from settings import API_KEY
-from constants import BANNED_LETTERS, СITIES_FILE_PATH
+from constants import BANNED_LETTERS, СITIES_FILE_PATH, HINT_COST, STEP_REWARD
 from cities_dict_maker import read_cities_file, create_cities_base
 from gameplay import check_input, letter_for_next_player, generate_answer, generate_not_ok_reaction, fake_bot_failure
 
@@ -24,7 +24,7 @@ def greet_user(update, context):
 
 def start_game(update, context):
     user_id = update.message.from_user.id
-    if context.bot_data.get(user_id) is not None and context.bot_data[user_id].get('bonus_score') is not None:
+    if user_id in context.bot_data and context.bot_data[user_id].get('bonus_score') is not None:
         score = context.bot_data[user_id]['bonus_score']
     else:
         score = 0
@@ -43,10 +43,10 @@ def start_game(update, context):
 
 def get_hint(update, context):
     user_id = update.message.from_user.id
-    if context.bot_data.get(user_id) is None or context.bot_data[user_id]['game_started'] is None:
+    if user_id not in context.bot_data or context.bot_data[user_id]['game_started'] is None:
         update.message.reply_text('Игра не запущена. Сперва начните игру командой /cities')
         return
-    context.bot_data[user_id]['user_score'] -= 50
+    context.bot_data[user_id]['user_score'] -= HINT_COST
     necessary_letter = context.bot_data[user_id]['necessary_letter']
     cities_base = context.bot_data[user_id]['cities_base']
     used_cities = context.bot_data[user_id]['used_cities']
@@ -56,7 +56,7 @@ def get_hint(update, context):
 
 def show_score(update, context):
     user_id = update.message.from_user.id
-    if context.bot_data.get(user_id) is None or context.bot_data[user_id]['game_started'] is None:
+    if user_id not in context.bot_data or context.bot_data[user_id]['game_started'] is None:
         update.message.reply_text('Игра не запущена. Сперва начните игру командой /cities')
     else:
         update.message.reply_text(f"Текущий счет: {context.bot_data[user_id]['user_score']}")
@@ -73,7 +73,7 @@ def cities_game(update, context):
     check_result = check_input(user_input, cities_base, context.bot_data[user_id]['used_cities'], necessary_letter, 'bot')
     if check_result == 'ok':
         context.bot_data[user_id]['used_cities'].append(user_input)
-        context.bot_data[user_id]['user_score'] += 10
+        context.bot_data[user_id]['user_score'] += STEP_REWARD
         answer_letter = letter_for_next_player(user_input, BANNED_LETTERS)
         answer = generate_answer(cities_base, answer_letter, context.bot_data[user_id]['used_cities'])
         if answer == 'no_answer' or fake_bot_failure():
@@ -93,7 +93,7 @@ def cities_game(update, context):
 
 def exit_game(update, context):
     user_id = update.message.from_user.id
-    if context.bot_data.get(user_id) is None or context.bot_data[user_id].get('game_started') is None:
+    if user_id not in context.bot_data or context.bot_data[user_id].get('game_started') is None:
         update.message.reply_text('На данный момент игра не запущена')
     else:
         update.message.reply_text(f"Вы закончили игру со счетом {context.bot_data[user_id]['user_score']}")   

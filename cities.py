@@ -1,7 +1,7 @@
 from cities_dict_maker import read_cities_file, create_cities_base
 from score import save_score, load_score
 from gameplay import check_input, letter_for_next_player, generate_answer, generate_not_ok_reaction, fake_bot_failure
-from constants import SAVEPATH, BANNED_LETTERS, СITIES_FILE_PATH
+from constants import SAVEPATH, BANNED_LETTERS, СITIES_FILE_PATH, HINT_COST, STEP_REWARD
 
 
 def main():
@@ -16,7 +16,7 @@ def main():
         check_result = check_input(user_input, cities_base, used_cities, necessary_letter)
         if check_result == 'ok':
             used_cities.append(user_input)
-            user_score += 10
+            user_score += STEP_REWARD
             answer_letter = letter_for_next_player(user_input, BANNED_LETTERS)
             answer = generate_answer(cities_base, answer_letter, used_cities)
             if answer == 'no_answer' or fake_bot_failure('developer'):
@@ -28,7 +28,7 @@ def main():
             print(f'Бот: {answer.title()} (Жду город на букву {necessary_letter.upper()})')
         else:
             if check_result == 'need hint':
-                user_score -= 50
+                user_score -= HINT_COST
             print(f'Бот: {generate_not_ok_reaction(check_result, necessary_letter, cities_base, used_cities)}')
     print('Бот: Вы закончили игру со счетом', user_score)
 
