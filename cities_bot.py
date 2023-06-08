@@ -28,7 +28,7 @@ def start_game(update, context):
         score = context.bot_data[user_id]['bonus_score']
     else:
         score = 0
-    if context.bot_data.get(user_id) is not None and context.bot_data[user_id].get('game_started'):
+    if user_id in context.bot_data and context.bot_data[user_id].get('game_started'):
         update.message.reply_text(f"Вы закончили игру со счетом {context.bot_data[user_id]['user_score']}. А теперь начнем заново!")     
     context.bot_data[user_id] = {
         'cities_base' : create_cities_base(read_cities_file(СITIES_FILE_PATH)),
