@@ -124,7 +124,4 @@ dmypy.json
 
 # Bot config and othed bot files
 settings.py
-cities.txt
-cities_game.py
-start_game_console.py
-start_game_telegram.py
+*.txt
