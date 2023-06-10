@@ -7,7 +7,7 @@ SAVEPATH = 'save.txt'
 BANNED_LETTERS = set('ёйьыъ')
 HINT_COST = 50
 STEP_REWARD = 10
-FAKE_FAILURE_CHANCE = 50
+FAKE_FAILURE_CHANCE = 5
 COMMANDS = {
     '/exit' : f'• /cities - запустить или перезапустить игру',
     '/hint' : f'• /hint - получить подсказку (стоит {HINT_COST} очков)',
