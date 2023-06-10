@@ -6,21 +6,21 @@ def greet_user():
     return list(COMMANDS.values())
 
 
-def get_start_parameters(game_started, last_score, bonus_score):
+def start_game(game_started, last_score, bonus_score):
     parameters = {
         'used_cities' : [],
         'user_score': bonus_score,
         'necessary_letter' : None,
         'game_started' : True,
-        'bonus_score': 0
+        'bonus_score': 0,
     }
-    parameters['reaction'] = f"Введите город или команду из списка. Начальный счет: {parameters['user_score']}"
+    reaction = f"Введите город или команду из списка. Начальный счет: {parameters['user_score']}"
     if game_started:
-        parameters['reaction'] = f'Вы закончили игру со счетом {last_score}. А теперь начнем заново! \n' + parameters['reaction']
-    return parameters
+        reaction = f'Вы закончили игру со счетом {last_score}. А теперь начнем заново! \n' + reaction
+    return {'parameters' : parameters, 'reaction': reaction}
 
 
-def formatted_input(user_input):
+def format_input(user_input):
     return user_input.lower().strip().replace('ё', 'е')
 
 
@@ -40,11 +40,11 @@ def get_hint(parameters):
             necessary_letter = parameters['necessary_letter']
         answer = generate_answer(CITIES_BASE, necessary_letter, parameters['used_cities'])
         if answer == 'no_answer':
-            parameters['reaction'] = f'Не могу придумать городов на эту букву. Возможно, стоит сдаться?'
+            reaction = f'Не могу придумать городов на эту букву. Возможно, стоит сдаться?'
         else:
             parameters['user_score'] -= HINT_COST
-            parameters['reaction'] = f'Как насчет города под названием {answer.title()}?'
-        return parameters
+            reaction = f'Как насчет города под названием {answer.title()}?'
+        return {'score' : parameters['user_score'], 'reaction': reaction} 
 
 
 def check_input(user_input, cities_base, used_cities, necessary_letter):
@@ -52,7 +52,7 @@ def check_input(user_input, cities_base, used_cities, necessary_letter):
         return 'used city'
     elif necessary_letter is not None and necessary_letter != user_input[0]:
         return 'wrong letter'
-    elif user_input not in cities_base[user_input[0]]:
+    elif user_input not in cities_base.get(user_input[0], []):
         return 'unknown city'
     else:
         return 'ok'
@@ -77,7 +77,7 @@ def fake_bot_failure():
     return random.randint(1, 100) in range(1, FAKE_FAILURE_CHANCE + 1)
 
 
-def next_turn(parameters, user_input):
+def make_turn(parameters, user_input):
     check_result = check_input(user_input, CITIES_BASE, parameters['used_cities'], parameters['necessary_letter'])
     if check_result == 'ok':
         parameters['used_cities'].append(user_input)
@@ -85,13 +85,13 @@ def next_turn(parameters, user_input):
         answer_letter = letter_for_next_player(user_input, BANNED_LETTERS)
         answer = generate_answer(CITIES_BASE, answer_letter, parameters['used_cities'])
         if answer == 'no_answer' or fake_bot_failure():
-            parameters['reaction'] = 'Ничего не идет в голову. Вы меня обыграли! Ваш счет сохранен для следующей игры.'
+            reaction = 'Ничего не идет в голову. Вы меня обыграли! Ваш счет сохранен для следующей игры.'
             parameters['bonus_score'] = parameters['user_score']
-            parameters['game_started'] = None
+            parameters['game_started'] = False
         else:
             parameters['used_cities'].append(answer)
             parameters['necessary_letter'] = letter_for_next_player(answer, BANNED_LETTERS)
-            parameters['reaction'] = f"{answer.title()} (Жду город на букву {parameters['necessary_letter'].upper()})"
+            reaction = f"{answer.title()} (Жду город на букву {parameters['necessary_letter'].upper()})"
     else:
-        parameters['reaction'] = generate_not_ok_reaction(check_result, parameters['necessary_letter'])
-    return parameters
+        reaction = generate_not_ok_reaction(check_result, parameters['necessary_letter'])
+    return {'parameters' : parameters, 'reaction': reaction}
